@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { pageMetadata, SITE_URL } from "@/lib/og";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "squishy.lab: build, squish & print",
-  description: "Design squishies in 3D, squish them with touch, and export printable molds as STL.",
+  metadataBase: new URL(SITE_URL),
+  ...pageMetadata("/"),
 };
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1, maximumScale: 1, userScalable: false };
