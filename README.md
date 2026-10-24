@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# squishy.lab
 
-## Getting Started
+Build, squish and print squishies in the browser. Pick a base shape (mochi, kitty, bear, bunny, froggy, heart, star, donut, peach, cloud, toast, butter, chick), customize colors, pattern, face and proportions, then poke, squash and pull it with a real-time soft-body simulation. When you like it, generate a 3D-printable mold and download it as STL, or print a real-size paper squishy template.
 
-First, run the development server:
+**Live:** https://squishy-nu.vercel.app
+
+## Features
+
+Everything lives on a single page (`/`) with three tabs:
+
+- **Build**: 13 shapes from a catalog, colors, patterns (gradient, icing, crust, belly patch, sprinkles, foil wrapper), eyes, mouth, blush, stretch/puff, size in mm, and materials (slow-rise foam, mochi/TPR, jelly, stress ball, butter, paper). Touch/mouse tools: poke, squash, pull, and a squeeze plate.
+- **Mold**: two-part or open molds with a parting plane, wall thickness, pour sprue, vent, registration keys and clearance. Meshing runs in a Web Worker. You can export the master, each part, or the whole plate as binary STL. Includes casting instructions.
+- **Paper**: a printable SVG template at real size, either a front/back "pillow" or a fold-up box net for the butter shape. It uses the same shader as the 3D view, so the print matches your design. You can download the SVG or print it directly.
+- Favicon, Apple icon and generated OG/Twitter images.
+
+## Stack
+
+- Next.js 16.3 (App Router), React 19.2, TypeScript
+- three.js + @react-three/fiber + @react-three/drei
+- Tailwind CSS v4
+- A custom position-based-dynamics soft body, SDF shapes meshed with surface nets, and a hand-written STL writer (no CAD dependencies)
+
+## Getting started
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3100. The dev script pins port 3100.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Script       | What it does                                  |
+| ------------ | --------------------------------------------- |
+| `pnpm dev`   | Dev server on port 3100                       |
+| `pnpm build` | Production build                              |
+| `pnpm start` | Serve the production build (default port 3000) |
+| `pnpm lint`  | ESLint                                        |
 
-## Learn More
+There are no tests and no environment variables.
 
-To learn more about Next.js, take a look at the following resources:
+## Project structure
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+src/
+  app/            layout, page, icon/apple-icon, opengraph/twitter images
+  components/
+    Studio.tsx    UI: tabs, controls, downloads
+    Scene.tsx     R3F canvas, lights, camera
+    SquishyBody.tsx  soft-body mesh + interaction tools
+  lib/
+    sdf.ts        signed distance functions for every shape
+    mesher.ts     surface-nets mesher
+    softbody.ts   PBD soft body engine + material presets
+    squishyMaterial.ts  shader (colors, patterns, face)
+    mold.ts / mold.worker.ts  mold SDF + meshing in a worker
+    paper.ts      printable paper templates (SVG)
+    stl.ts        binary STL export
+    catalog.ts    shape catalog and defaults
+    og.tsx        site metadata + OG image art
+assets/fonts/     Geist fonts used by the OG images
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deploy
 
-## Deploy on Vercel
+The site deploys on Vercel as project `squishy`. The GitHub remote is `sibelius/squishy`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+vercel --prod
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Note: `SITE_URL` in `src/lib/og.tsx` (used for `metadataBase`) is set to `https://squishy.vercel.app`, but this project's production alias is `https://squishy-nu.vercel.app`.
